@@ -9,6 +9,10 @@ services:
       LOG_LEVEL: info
       HOST: 0.0.0.0
       PORT: 8989
+      # MCP DNS-rebinding allowed hosts. "*" disables the check (mock).
+      # In production set to the public domain(s), comma-separated:
+      #   DAUM_MCP_ALLOWED_HOSTS: "daum-mcp.toy.x.upstage.ai"
+      DAUM_MCP_ALLOWED_HOSTS: "*"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8989/health',timeout=2).status==200 else 1)"]

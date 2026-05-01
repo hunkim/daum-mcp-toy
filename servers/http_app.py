@@ -26,6 +26,7 @@ import contextlib
 import os
 from typing import Any
 
+from mcp.server.transport_security import TransportSecuritySettings
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Mount, Route
@@ -41,6 +42,32 @@ ALL_SERVERS = [
     ("knowledge", knowledge_mcp),
     ("solar", solar_mcp),
 ]
+
+
+def _build_security_settings() -> TransportSecuritySettings:
+    """DNS-rebinding protection for MCP streamable-HTTP transport.
+
+    The MCP SDK enables this by default and only allows localhost — when
+    we're behind a reverse proxy on a public domain, the public Host header
+    is rejected with HTTP 421 unless we explicitly allow it.
+
+    Configure via env var:
+      DAUM_MCP_ALLOWED_HOSTS="*"                          # disable check
+      DAUM_MCP_ALLOWED_HOSTS="daum-mcp.toy.x.upstage.ai"  # pin one
+      DAUM_MCP_ALLOWED_HOSTS="a.example.com,b.example.com,localhost:*"
+    """
+    raw = os.getenv("DAUM_MCP_ALLOWED_HOSTS", "*").strip()
+    if raw == "*" or raw == "":
+        return TransportSecuritySettings(enable_dns_rebinding_protection=False)
+    hosts = [h.strip() for h in raw.split(",") if h.strip()]
+    # Always include the local loopbacks so internal health/probe still work.
+    for loop in ("127.0.0.1:*", "localhost:*", "[::1]:*"):
+        if loop not in hosts:
+            hosts.append(loop)
+    return TransportSecuritySettings(
+        enable_dns_rebinding_protection=True,
+        allowed_hosts=hosts,
+    )
 
 
 async def root(_request) -> JSONResponse:
@@ -86,11 +113,15 @@ async def lifespan(app: Starlette):
 
 
 def build_app() -> Starlette:
+    security = _build_security_settings()
     routes: list[Any] = [
         Route("/", root, methods=["GET"]),
         Route("/health", health, methods=["GET"]),
     ]
     for prefix, srv in ALL_SERVERS:
+        # MUST set BEFORE streamable_http_app() — the session manager bakes
+        # the security settings in at construction time.
+        srv.settings.transport_security = security
         routes.append(Mount(f"/{prefix}", app=srv.streamable_http_app()))
     return Starlette(routes=routes, lifespan=lifespan)
 
