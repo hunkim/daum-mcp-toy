@@ -1,8 +1,75 @@
-# daum-mcp-wrapper
+# daum-mcp-toy
 
 Mock MCP servers for **Daum Agent Portal** — Tier 0 (Day 1-7 demo gate).
+**4 servers · 14 Korean-context tools · live at `https://daum-mcp.toy.x.upstage.ai`.**
 
-> Korea's Agent grounding layer. People's Portal → Agent's Portal.
+> *Korea's Agent grounding layer. People's Portal → Agent's Portal.*
+
+---
+
+## ▶︎ Add to your Claude / Cursor / VS Code in 10 seconds
+
+### Claude.ai (web, Pro / Team / Enterprise) — Custom Connectors
+
+[![Open Claude.ai connector settings](https://img.shields.io/badge/Add%20to-Claude.ai-DA7756?logo=anthropic&logoColor=white&style=for-the-badge)](https://claude.ai/settings/connectors)
+
+1. Click the badge → **"Add custom connector"**
+2. Paste each URL below as a separate connector (name them anything):
+   ```
+   https://daum-mcp.toy.x.upstage.ai/meta/mcp
+   https://daum-mcp.toy.x.upstage.ai/search/mcp
+   https://daum-mcp.toy.x.upstage.ai/knowledge/mcp
+   https://daum-mcp.toy.x.upstage.ai/solar/mcp
+   ```
+3. No auth required (toy server). All 14 tools appear in your chat tools tray.
+
+### Claude Desktop (macOS / Windows)
+
+Append the following block to `~/Library/Application Support/Claude/claude_desktop_config.json`
+(macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows), then restart Claude:
+
+```json
+{
+  "mcpServers": {
+    "daum-meta":      { "type": "http", "url": "https://daum-mcp.toy.x.upstage.ai/meta/mcp" },
+    "daum-search":    { "type": "http", "url": "https://daum-mcp.toy.x.upstage.ai/search/mcp" },
+    "daum-knowledge": { "type": "http", "url": "https://daum-mcp.toy.x.upstage.ai/knowledge/mcp" },
+    "daum-solar":     { "type": "http", "url": "https://daum-mcp.toy.x.upstage.ai/solar/mcp" }
+  }
+}
+```
+
+### Cursor — one-click install (4 buttons)
+
+[![Add daum-meta to Cursor](https://img.shields.io/badge/Cursor-Add%20daum--meta-000?logo=cursor&style=flat-square)](cursor://anysphere.cursor-deeplink/mcp/install?name=daum-meta&config=eyJ1cmwiOiJodHRwczovL2RhdW0tbWNwLnRveS54LnVwc3RhZ2UuYWkvbWV0YS9tY3AifQ==)
+[![Add daum-search to Cursor](https://img.shields.io/badge/Cursor-Add%20daum--search-000?logo=cursor&style=flat-square)](cursor://anysphere.cursor-deeplink/mcp/install?name=daum-search&config=eyJ1cmwiOiJodHRwczovL2RhdW0tbWNwLnRveS54LnVwc3RhZ2UuYWkvc2VhcmNoL21jcCJ9)
+[![Add daum-knowledge to Cursor](https://img.shields.io/badge/Cursor-Add%20daum--knowledge-000?logo=cursor&style=flat-square)](cursor://anysphere.cursor-deeplink/mcp/install?name=daum-knowledge&config=eyJ1cmwiOiJodHRwczovL2RhdW0tbWNwLnRveS54LnVwc3RhZ2UuYWkva25vd2xlZGdlL21jcCJ9)
+[![Add daum-solar to Cursor](https://img.shields.io/badge/Cursor-Add%20daum--solar-000?logo=cursor&style=flat-square)](cursor://anysphere.cursor-deeplink/mcp/install?name=daum-solar&config=eyJ1cmwiOiJodHRwczovL2RhdW0tbWNwLnRveS54LnVwc3RhZ2UuYWkvc29sYXIvbWNwIn0=)
+
+### VS Code (1.99+ Copilot MCP) — one-click install (4 buttons)
+
+[![Install daum-meta in VS Code](https://img.shields.io/badge/VS%20Code-Install%20daum--meta-007ACC?logo=visualstudiocode&style=flat-square)](vscode:mcp/install?%7B%22name%22%3A%22daum-meta%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fdaum-mcp.toy.x.upstage.ai%2Fmeta%2Fmcp%22%7D)
+[![Install daum-search in VS Code](https://img.shields.io/badge/VS%20Code-Install%20daum--search-007ACC?logo=visualstudiocode&style=flat-square)](vscode:mcp/install?%7B%22name%22%3A%22daum-search%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fdaum-mcp.toy.x.upstage.ai%2Fsearch%2Fmcp%22%7D)
+[![Install daum-knowledge in VS Code](https://img.shields.io/badge/VS%20Code-Install%20daum--knowledge-007ACC?logo=visualstudiocode&style=flat-square)](vscode:mcp/install?%7B%22name%22%3A%22daum-knowledge%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fdaum-mcp.toy.x.upstage.ai%2Fknowledge%2Fmcp%22%7D)
+[![Install daum-solar in VS Code](https://img.shields.io/badge/VS%20Code-Install%20daum--solar-007ACC?logo=visualstudiocode&style=flat-square)](vscode:mcp/install?%7B%22name%22%3A%22daum-solar%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fdaum-mcp.toy.x.upstage.ai%2Fsolar%2Fmcp%22%7D)
+
+### ChatGPT Desktop (Plus / Pro) · Gemini Enterprise · OpenClaw / agent SDKs
+
+Any MCP-compliant client takes URLs directly. Paste the four `/mcp` URLs above
+into the client's "MCP server" / "Connector" / "Tool extension" UI.
+
+### Verify (no install)
+
+```bash
+curl -s https://daum-mcp.toy.x.upstage.ai/health
+# → {"status":"ok","servers":["daum-meta","daum-search","daum-knowledge","daum-solar"],"mock":true}
+```
+
+### Try it (sample prompts)
+
+> *"강남 날씨랑 환율 알려줘"* &nbsp;·&nbsp; *"'정산'을 영어로, 한자 어원도"*  &nbsp;·&nbsp; *"한강에 대해 한국어 격식체로 정리해줘"*
+
+---
 
 This package implements 4 MCP servers and 14 tools as defined in the
 `daum_mcp_specification.md` v1.0 spec. The mock layer is response-shape
