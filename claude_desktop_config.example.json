@@ -1,0 +1,25 @@
+{
+  "_comment": "Drop the four entries below into ~/Library/Application Support/Claude/claude_desktop_config.json. Replace ABSOLUTE_PATH with the cloned directory.",
+  "mcpServers": {
+    "daum-meta": {
+      "command": "ABSOLUTE_PATH/daum-mcp-wrapper/.venv/bin/python",
+      "args": ["-m", "servers.meta"],
+      "cwd": "ABSOLUTE_PATH/daum-mcp-wrapper"
+    },
+    "daum-search": {
+      "command": "ABSOLUTE_PATH/daum-mcp-wrapper/.venv/bin/python",
+      "args": ["-m", "servers.search"],
+      "cwd": "ABSOLUTE_PATH/daum-mcp-wrapper"
+    },
+    "daum-knowledge": {
+      "command": "ABSOLUTE_PATH/daum-mcp-wrapper/.venv/bin/python",
+      "args": ["-m", "servers.knowledge"],
+      "cwd": "ABSOLUTE_PATH/daum-mcp-wrapper"
+    },
+    "daum-solar": {
+      "command": "ABSOLUTE_PATH/daum-mcp-wrapper/.venv/bin/python",
+      "args": ["-m", "servers.solar"],
+      "cwd": "ABSOLUTE_PATH/daum-mcp-wrapper"
+    }
+  }
+}

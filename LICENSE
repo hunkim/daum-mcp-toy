@@ -1,0 +1,15 @@
+Copyright (c) 2026 Upstage Co., Ltd. (Daum Agent Portal)
+
+All rights reserved.
+
+This source code is the confidential and proprietary information of
+Upstage Co., Ltd. ("Confidential Information"). You shall not disclose
+such Confidential Information and shall use it only in accordance with
+the terms of the license agreement you entered into with Upstage.
+
+This package contains mock implementations of the Daum Agent Portal MCP
+servers, intended for internal development, partner integration testing,
+and demonstration purposes. The mock fixtures included herein do NOT
+represent live Daum service data.
+
+For licensing inquiries: agent-portal@upstage.ai
