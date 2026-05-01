@@ -1,0 +1,50 @@
+# systemd unit for the bare-metal (no-Docker) deployment of daum-mcp-toy.
+#
+# Install:
+#   sudo cp deploy/daum-mcp.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now daum-mcp
+#   sudo systemctl status daum-mcp
+#   sudo journalctl -u daum-mcp -f
+#
+# Adjust User= and the two paths under WorkingDirectory= / ExecStart= if you
+# clone elsewhere. The hardening directives below assume the repo lives in
+# /opt/daum-mcp-toy and is owned by user `daum`.
+
+[Unit]
+Description=Daum MCP Wrapper (Tier 0 mock — streamable HTTP)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=daum
+Group=daum
+WorkingDirectory=/opt/daum-mcp-toy
+Environment=HOST=127.0.0.1
+Environment=PORT=8989
+Environment=LOG_LEVEL=info
+ExecStart=/opt/daum-mcp-toy/.venv/bin/python -m servers.http_app
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/daum-mcp-toy
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=true
+MemoryDenyWriteExecute=true
+
+# Limits
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

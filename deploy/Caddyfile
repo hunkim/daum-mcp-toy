@@ -1,0 +1,32 @@
+# Caddy reverse-proxy config for daum-mcp-toy.
+# Caddy auto-provisions a Let's Encrypt certificate — no extra steps.
+#
+# Install: https://caddyserver.com/docs/install
+# Run:     sudo caddy run --config /etc/caddy/Caddyfile
+# Reload:  sudo caddy reload --config /etc/caddy/Caddyfile
+
+daum-mcp.toy.x.upstage.ai {
+    encode zstd gzip
+
+    # Streamable-HTTP MCP needs long idle (SSE pump) — bump timeouts.
+    reverse_proxy 127.0.0.1:8989 {
+        flush_interval -1
+        transport http {
+            read_timeout 30m
+            write_timeout 30m
+            dial_timeout 5s
+        }
+        header_up X-Real-IP        {remote_host}
+        header_up X-Forwarded-For  {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up Host              {host}
+    }
+
+    log {
+        output file /var/log/caddy/daum-mcp.log {
+            roll_size 50mb
+            roll_keep 14
+        }
+        format json
+    }
+}
