@@ -43,9 +43,69 @@ python -m servers.search
 python -m servers.knowledge
 python -m servers.solar
 python -m servers.meta
+
+# HTTP launch — single host, all 4 servers under /{prefix}/mcp
+python -m servers.http_app                # 0.0.0.0:8000
+PORT=8765 python -m servers.http_app      # custom port
+
+# Or with uvicorn directly (e.g. behind a reverse proxy)
+uvicorn servers.http_app:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
-## Wire up to Claude Desktop
+## Server-side deployment (HTTP)
+
+```bash
+# Docker
+docker build -t daum-mcp-wrapper:0.1.0 .
+docker run --rm -p 8000:8000 daum-mcp-wrapper:0.1.0
+
+# Compose
+docker compose up -d
+curl http://127.0.0.1:8000/health
+```
+
+Endpoints once running:
+
+| Path | What it serves |
+|------|----------------|
+| `GET  /` | server inventory (id, endpoint, tool_count) |
+| `GET  /health` | liveness — used by k8s / docker healthcheck |
+| `POST /meta/mcp` | MCP JSON-RPC for daum-meta |
+| `POST /search/mcp` | MCP JSON-RPC for daum-search |
+| `POST /knowledge/mcp` | MCP JSON-RPC for daum-knowledge |
+| `POST /solar/mcp` | MCP JSON-RPC for daum-solar |
+
+### Connect a remote MCP client
+
+```python
+from mcp.client.streamable_http import streamablehttp_client
+from mcp.client.session import ClientSession
+
+async with streamablehttp_client("http://your-host:8000/search/mcp") as (r, w, _):
+    async with ClientSession(r, w) as s:
+        await s.initialize()
+        result = await s.call_tool(
+            "daum_search_realtime_panel",
+            {"query": "강남 날씨"},
+        )
+```
+
+### Claude Desktop with a remote endpoint
+
+Once you have an HTTPS reverse proxy in front (nginx / caddy / cloudflare):
+
+```json
+{
+  "mcpServers": {
+    "daum-meta":      { "url": "https://daum-mcp.your-host.com/meta/mcp" },
+    "daum-search":    { "url": "https://daum-mcp.your-host.com/search/mcp" },
+    "daum-knowledge": { "url": "https://daum-mcp.your-host.com/knowledge/mcp" },
+    "daum-solar":     { "url": "https://daum-mcp.your-host.com/solar/mcp" }
+  }
+}
+```
+
+## Wire up to Claude Desktop (local stdio)
 
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 

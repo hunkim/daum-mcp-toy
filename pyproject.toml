@@ -1,21 +1,25 @@
 [project]
-name = "daum-mcp-mock"
+name = "daum-mcp-wrapper"
 version = "0.1.0"
-description = "Mock MCP servers for Daum Agent Portal — Tier 0 (4 servers, 14 tools)"
+description = "Mock MCP servers for Daum Agent Portal — Tier 0 (4 servers, 14 tools), stdio + streamable-HTTP"
 requires-python = ">=3.10"
 dependencies = [
     "mcp[cli]>=1.2.0",
     "pydantic>=2.0",
+    "starlette>=0.40",
+    "uvicorn[standard]>=0.30",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7", "pytest-asyncio>=0.23"]
+dev = ["pytest>=7", "pytest-asyncio>=0.23", "httpx>=0.27"]
+serve = ["uvicorn[standard]>=0.30", "starlette>=0.40"]
 
 [project.scripts]
 daum-meta = "servers.meta:main"
 daum-search = "servers.search:main"
 daum-knowledge = "servers.knowledge:main"
 daum-solar = "servers.solar:main"
+daum-mcp-http = "servers.http_app:main"
 
 [build-system]
 requires = ["hatchling"]
