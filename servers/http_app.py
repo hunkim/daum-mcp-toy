@@ -11,10 +11,13 @@ Endpoints (when bound to e.g. http://0.0.0.0:8000):
     POST /solar/mcp              → MCP JSON-RPC for daum-solar
 
 Run locally:
-    uvicorn servers.http_app:app --host 0.0.0.0 --port 8000
+    uvicorn servers.http_app:app --host 0.0.0.0 --port 8989
 
-Or as a module (defaults to 0.0.0.0:8000):
+Or as a module (defaults to 0.0.0.0:8989):
     python -m servers.http_app
+
+Public test endpoint (when fronted by HTTPS proxy):
+    https://daum-mcp.toy.x.upstage.ai/{meta,search,knowledge,solar}/mcp
 """
 
 from __future__ import annotations
@@ -50,13 +53,14 @@ async def root(_request) -> JSONResponse:
                 {
                     "id": f"daum-{prefix}",
                     "endpoint": f"/{prefix}/mcp",
+                    "public_url": f"https://daum-mcp.toy.x.upstage.ai/{prefix}/mcp",
                     "tool_count": len(getattr(srv, "_tool_manager", srv)._tools)
                     if hasattr(srv, "_tool_manager")
                     else None,
                 }
                 for prefix, srv in ALL_SERVERS
             ],
-            "docs": "https://github.com/upstage/daum-mcp-wrapper",
+            "docs": "https://github.com/hunkim/daum-mcp-toy",
         }
     )
 
@@ -98,7 +102,7 @@ def main() -> None:
     import uvicorn
 
     host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", "8000"))
+    port = int(os.getenv("PORT", "8989"))
     uvicorn.run(
         "servers.http_app:app",
         host=host,

@@ -4,7 +4,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     HOST=0.0.0.0 \
-    PORT=8000
+    PORT=8989
 
 WORKDIR /app
 
@@ -20,9 +20,9 @@ RUN pip install --upgrade pip && \
 RUN useradd -u 10001 -m daum && chown -R daum:daum /app
 USER daum
 
-EXPOSE 8000
+EXPOSE 8989
 
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-    CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=2).status==200 else 1)"
+    CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8989/health',timeout=2).status==200 else 1)"
 
 CMD ["python", "-m", "servers.http_app"]

@@ -45,11 +45,11 @@ python -m servers.solar
 python -m servers.meta
 
 # HTTP launch — single host, all 4 servers under /{prefix}/mcp
-python -m servers.http_app                # 0.0.0.0:8000
-PORT=8765 python -m servers.http_app      # custom port
+python -m servers.http_app                # 0.0.0.0:8989  (default)
+PORT=9000 python -m servers.http_app      # custom port
 
 # Or with uvicorn directly (e.g. behind a reverse proxy)
-uvicorn servers.http_app:app --host 0.0.0.0 --port 8000 --workers 4
+uvicorn servers.http_app:app --host 0.0.0.0 --port 8989 --workers 4
 ```
 
 ## Server-side deployment (HTTP)
@@ -57,12 +57,15 @@ uvicorn servers.http_app:app --host 0.0.0.0 --port 8000 --workers 4
 ```bash
 # Docker
 docker build -t daum-mcp-wrapper:0.1.0 .
-docker run --rm -p 8000:8000 daum-mcp-wrapper:0.1.0
+docker run --rm -p 8989:8989 daum-mcp-wrapper:0.1.0
 
 # Compose
 docker compose up -d
-curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8989/health
 ```
+
+Test deployment is provisioned at **`https://daum-mcp.toy.x.upstage.ai`**
+(HTTPS reverse proxy in front of the container on port 8989).
 
 Endpoints once running:
 
@@ -81,7 +84,7 @@ Endpoints once running:
 from mcp.client.streamable_http import streamablehttp_client
 from mcp.client.session import ClientSession
 
-async with streamablehttp_client("http://your-host:8000/search/mcp") as (r, w, _):
+async with streamablehttp_client("https://daum-mcp.toy.x.upstage.ai/search/mcp") as (r, w, _):
     async with ClientSession(r, w) as s:
         await s.initialize()
         result = await s.call_tool(
@@ -97,10 +100,10 @@ Once you have an HTTPS reverse proxy in front (nginx / caddy / cloudflare):
 ```json
 {
   "mcpServers": {
-    "daum-meta":      { "url": "https://daum-mcp.your-host.com/meta/mcp" },
-    "daum-search":    { "url": "https://daum-mcp.your-host.com/search/mcp" },
-    "daum-knowledge": { "url": "https://daum-mcp.your-host.com/knowledge/mcp" },
-    "daum-solar":     { "url": "https://daum-mcp.your-host.com/solar/mcp" }
+    "daum-meta":      { "url": "https://daum-mcp.toy.x.upstage.ai/meta/mcp" },
+    "daum-search":    { "url": "https://daum-mcp.toy.x.upstage.ai/search/mcp" },
+    "daum-knowledge": { "url": "https://daum-mcp.toy.x.upstage.ai/knowledge/mcp" },
+    "daum-solar":     { "url": "https://daum-mcp.toy.x.upstage.ai/solar/mcp" }
   }
 }
 ```
